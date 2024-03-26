@@ -1,6 +1,5 @@
 <script setup>
 import { ref } from "vue";
-import Square from "./Square.vue";
 
 const mark = ref([
   ["", "", ""],
