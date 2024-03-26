@@ -1,62 +1,116 @@
 <script setup>
 import { ref } from "vue";
+import Square from "./Square.vue";
 
-const mark = ref(["", "", "", "", "", "", "", "", ""]);
+const mark = ref([
+  ["", "", ""],
+  ["", "", ""],
+  ["", "", ""],
+]);
+const size = ref(3);
 const X = "X";
 const O = "O";
 const currentPlayer = ref(X);
 let xIndex = [];
 let oIndex = [];
-
 const winnerStates = [
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8],
-  [0, 3, 6],
-  [1, 4, 7],
-  [2, 5, 8],
-  [0, 4, 8],
-  [2, 4, 6],
+  [
+    [0, 0],
+    [0, 1],
+    [0, 2],
+  ],
+  [
+    [1, 0],
+    [1, 1],
+    [1, 2],
+  ],
+  [
+    [2, 0],
+    [2, 1],
+    [2, 2],
+  ],
+  [
+    [0, 0],
+    [1, 0],
+    [2, 0],
+  ],
+  [
+    [0, 1],
+    [1, 1],
+    [2, 1],
+  ],
+  [
+    [0, 2],
+    [1, 2],
+    [2, 2],
+  ],
+  [
+    [0, 0],
+    [1, 1],
+    [2, 2],
+  ],
+  [
+    [0, 2],
+    [1, 1],
+    [2, 0],
+  ],
 ];
 const isWinner = ref(false);
 const Winner = ref();
 
+function checkArrInArr(mainArr, sample) {
+  var i, j, current;
+  for (i = 0; i < mainArr.length; i++) {
+    current = mainArr[i];
+    for (j = 0; j < sample.length && sample[j] === current[j]; j++);
+    if (j === sample.length) return true;
+  }
+}
+
 function checkWinner(arr) {
-  for (let i = 0; i < 8; i++) {
-    const check = new Set();
-    for (let j = 0; j < 3; j++) {
-      if (arr.includes(winnerStates[i][j])) {
-        check.add(winnerStates[i][j]);
+  let check = [];
+  var i, j, k;
+  for (i = 0; i < winnerStates.length; i++) {
+    for (j = 0; j < arr.length; j++) {
+      if (checkArrInArr(winnerStates[i], arr[j])) {
+        check.push(winnerStates[i]);
       }
     }
-    if (check.size >= 3) {
+  }
+  for (k = 0; k < check.length; k++) {
+    let lengthOfCheck = check.filter((element) => element === check[k]).length;
+    if (lengthOfCheck == 3) {
       isWinner.value = true;
       Winner.value = currentPlayer;
-      break;
     }
   }
 }
 
-function changeTurn(id) {
-  mark.value[id] = currentPlayer.value;
+function changeTurn(row, col) {
+  mark.value[row][col] = currentPlayer.value;
   if (currentPlayer.value == X) {
     currentPlayer.value = O;
-    xIndex.push(id);
+    xIndex.push([row, col]);
     checkWinner(xIndex);
     if (isWinner.value) {
       currentPlayer.value = X;
     }
   } else {
     currentPlayer.value = X;
-    oIndex.push(id);
+    oIndex.push([row, col]);
     checkWinner(oIndex);
     if (isWinner.value) {
       currentPlayer.value = O;
     }
   }
 }
-function Reset() {
-  mark.value = ["", "", "", "", "", "", "", "", ""];
+
+function reset() {
+  mark.value = [
+    ["", "", ""],
+    ["", "", ""],
+    ["", "", ""],
+  ];
   currentPlayer.value = X;
   isWinner.value = false;
   Winner.value = "";
@@ -70,20 +124,10 @@ function Reset() {
 
   <div id="board">
     <table class="h-96 w-96">
-      <tr>
-        <td @click="changeTurn(0)">{{ mark[0] }}</td>
-        <td @click="changeTurn(1)">{{ mark[1] }}</td>
-        <td @click="changeTurn(2)">{{ mark[2] }}</td>
-      </tr>
-      <tr>
-        <td @click="changeTurn(3)">{{ mark[3] }}</td>
-        <td @click="changeTurn(4)">{{ mark[4] }}</td>
-        <td @click="changeTurn(5)">{{ mark[5] }}</td>
-      </tr>
-      <tr>
-        <td @click="changeTurn(6)">{{ mark[6] }}</td>
-        <td @click="changeTurn(7)">{{ mark[7] }}</td>
-        <td @click="changeTurn(8)">{{ mark[8] }}</td>
+      <tr v-for="i in size" :key="i">
+        <td v-for="j in size" :key="j" @click="changeTurn(i - 1, j - 1)">
+          {{ mark[i - 1][j - 1] }}
+        </td>
       </tr>
     </table>
   </div>
@@ -91,6 +135,6 @@ function Reset() {
   <div class="mt-5" v-if="isWinner">Winner is: Player {{ currentPlayer }}</div>
   <div class="mt-5" v-else>Turn: Player {{ currentPlayer }}</div>
   <div class="mt-5">
-    <button @click="Reset">Reset</button>
+    <button @click="reset">Reset</button>
   </div>
 </template>
