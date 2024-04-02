@@ -81,13 +81,3 @@ button:focus-visible {
   }
 }
 
-table tr{
-  height: 32px;
-  background-color: palevioletred;
-}
-table tr td{
-  width: 32px;
-}
-table td:hover{
-  background-color: #ff97e5;
-}
